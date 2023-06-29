@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="ISO-8859-1">
+	<title>Plantilla</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+		integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+	<link rel="stylesheet" th:href="@{/resources/datepicker/bootstrap-datepicker.css}">
+	<link rel="stylesheet" th:href="@{/resources/alertifyjs/css/alertify.css}">
+	<link rel="stylesheet" th:href="@{/resources/alertifyjs/css/alertify.min.css}">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+
+</head>
+
+<body>
+	<!--crear fragmento "cabecera" -->
+	<div th:fragment="cabecera">
+		<div class="pos-f-t">
+			<nav class="navbar navbar-expand-sm bg-primary">
+				<div class="navbar-header">
+					<div class="navbar-header">
+						<a class="navbar-brand text-light" href="/usuario/intranet">ALMACEN</a>
+					</div>
+				</div>
+				<div class="collapse navbar-collapse">
+					<ul class="nav nav-pills">
+						<li class="nav-item" th:each="bean:${session.ENLACES}">
+							<a class="nav-link text-light" th:href="${bean.ruta}" th:text="${bean.descripcion}"></a>
+						</li>
+
+					</ul>
+					<div class="navbar-nav ml-auto">
+						<div class="flex" style="width:200px!important;padding-top: 10px;font-weight:bold ">
+
+							<i class="	fa fa-user"> <span class="text-white">Usuario: </span><span
+									class="text-white" th:text="${session.datosUsuario}"></span>
+							</i>
+						</div>
+						<span class="nav-item nav-link"></span>
+						<form method="post" th:action="@{/logout}">
+
+							<button type="submit" class="btn btn-success"><i class="fas fa-arrow-circle-left"></i> Cerrar
+								Sesión</button>
+
+						</form>
+					</div>
+				</div>
+			</nav>
+		</div>
+	</div>
+
+
+
+
+
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+		integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+		crossorigin="anonymous"></script>
+	<script src="http://code.jquery.com/jquery-3.3.1.min.js"
+		integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+		integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+		crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+		integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+		crossorigin="anonymous"></script>
+
+
+
+</body>
+
+</html>

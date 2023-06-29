@@ -1,0 +1,470 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Bootstrap demo</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+		integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+	<link rel="stylesheet" th:href="@{/resources/datepicker/bootstrap-datepicker.css}">
+	<link rel="stylesheet" th:href="@{/resources/alertifyjs/css/alertify.css}">
+	<link rel="stylesheet" th:href="@{/resources/alertifyjs/css/alertify.min.css}">
+
+	<style>
+		body {
+			background-image: url(https://dms.com.pe/wp-content/uploads/2022/06/sistemas-de-GestiOn-de-Almacenes.jpg);
+			background-repeat: no-repeat;
+			background-size: cover;
+		}
+
+		body {
+			font-family: verdana;
+			font-size: 12px;
+		}
+
+		.modal-header,
+		h4,
+		.close {
+			background-color: #286090;
+			color: white !important;
+			text-align: center;
+			font-size: 20px;
+		}
+
+		.form-control {
+			height: 30px !important;
+			/*padding-left: 40px!important;*/
+		}
+
+		.filtro {
+			height: 70px;
+		}
+
+		fieldset,
+		legend {
+			all: revert;
+		}
+
+		.reset {
+			all: revert;
+		}
+
+		.btn-danger {
+			margin: 0px !important;
+			height: 30px !important;
+			padding-top: 3px !important;
+		}
+
+		.colorBloqueado {
+			background: #F7EEC5;
+		}
+
+		.form-control:focus {
+			background: #F7EEC5;
+		}
+	</style>
+	<script src="https://kit.fontawesome.com/1da5200486.js" crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.1/css/all.css" crossorigin="anonymous">
+
+</head>
+
+<body>
+	<div th:insert="plantilla/UITemplate :: cabecera"></div>
+	<!-- Button trigger modal -->
+	<div class="container">
+
+		<form method="post" th:action="@{/entrada/reporteEntradas}">
+			<div class="form-group has-feedback col-md-6">
+				<label for="exampleInputEmail1" class="h1"><b>Proveedor</b></label><br>
+				<select class="form-control form-control-sm" id="idProveedor" name="proveedor">
+					<option value=" ">[Seleccione Proveedor]</option>
+					<option th:each="data:${proveedores}" th:utext="${data.nombre}" th:value="${data.idproveedor}" />
+				</select>
+			</div>
+			<button type="submit" class="btn btn-primary">Consulta</button>
+		</form>
+
+
+
+		<button type="button" class="btn btn-primary mt-5" data-bs-toggle="modal" data-bs-target="#exampleModal">
+			Nueva Entrada
+		</button>
+
+		<table class="table table-striped table-bordered mt-5 table-hover" id="tableEntradas">
+			<thead class="table-dark">
+				<tr>
+					<th> CODIGO </th>
+					<th> ALMACENERO </th>
+					<th> PROVEEDOR </th>
+					<th> F. EMISIÓN </th>
+					<th> CANTIDAD </th>
+					<th> TOTAL </th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="x:${entradas}" class="table-info">
+					<td th:text="${x.codigo}"></td>
+					<td th:text="${x.usuario.nombre}"></td>
+					<td th:text="${x.proveedorEntrada.nombre}"></td>
+					<td th:text="${x.fecha}"></td>
+					<td th:text="${x.cantidad}"></td>
+					<td th:text="${x.precioCompra}"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	</div>
+	<!-- Modal -->
+	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="exampleModalLabel">Entrada</h1>
+				</div>
+				<div class="modal-body">
+					<form method="post" th:action="@{/entrada/grabar}">
+						<div class="row">
+							<div class="col-3">
+								<label for="inputPassword6" class="col-form-label">Número</label>
+								<input type="text" class="form-control colorBloqueado" name="numero" readonly>
+							</div>
+							<div class="col-3">
+								<label for="inputPassword6" class="col-form-label">Proveedor</label>
+								<input type="text" class="form-control colorBloqueado" name="proveedor"
+									id="id-proveedor" readonly>
+							</div>
+							
+							<div class="col-3">
+								<label for="inputPassword6" class="col-form-label">Fecha</label>
+								<input type="date" class="form-control" name="fecha" id="usr1">
+							</div>
+							
+							<div class="col-3" style="display: none;">
+								<label for="inputPassword6" class="col-form-label">Fecha</label>
+								<input type="text" class="form-control" name="precio" id="precio-total">
+								<input type="text" class="form-control" name="cantidad" id="cantidad-total">
+							</div>
+						</div>
+						<hr />
+
+						<div class="row mt-3">
+							<div class="col-lg-6">
+								<fieldset class="reset">
+									<legend class="reset">Consulta Proveedor</legend>
+									<div class="row mt-3">
+										<label for="inputEmail3" class="col-sm-2">Proveedor</label>
+										<div class="col-sm-4">
+											<input type="text" class="form-control" id="txtProveedor">
+										</div>
+										<div class="col-sm-6">
+											<button type="button" class="btn btn-info" id="btn-consulta-cliente">
+												<i class="fas fa-search"></i>
+
+											</button>
+										</div>
+									</div>
+									<table id="tableProveedor" class="table table-striped mt-4" style="width:100%">
+										<thead>
+											<tr>
+												<th>Código</th>
+												<th>Nombre</th>
+												<th>RUC</th>
+												<th>Direccion</th>
+												<th></th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr th:each="row:${proveedores}">
+												<th th:text="${row.idproveedor}"></th>
+												<th th:text="${row.nombre}"></th>
+												<th th:text="${row.ruc}"></th>
+												<th th:text="${row.direccion}"></th>
+												<th></th>
+											</tr>
+										</tbody>
+									</table>
+								</fieldset>
+							</div>
+							<div class="col-lg-6">
+								<fieldset class="reset">
+									<legend class="reset">Consulta Producto</legend>
+									<div class="row mt-3">
+										<label for="inputEmail3" class="col-sm-2">Producto</label>
+										<div class="col-sm-4">
+											<input type="text" class="form-control" id="txtProducto">
+										</div>
+										<div class="col-sm-4">
+											<button type="button" class="btn btn-success" id="btn-consulta-medicamento">
+												<i class="fas fa-search"></i>
+
+											</button>
+										</div>
+
+									</div>
+									<table id="tableProducto" class="table table-striped mt-4" style="width:100%">
+										<thead>
+											<tr>
+												<th>Código</th>
+												<th>Descripcion</th>
+												<th>Precio</th>
+												<th>Stock</th>
+												<th></th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr th:each="pro:${productos}">
+												<td th:text="${pro.idproducto}">Tiger Nixon</td>
+												<td th:text="${pro.descripcion}">System Architect</td>
+												<td th:text="${pro.precio}">Edinburgh</td>
+												<td th:text="${pro.stock_actual}">61</td>
+												<td>
+													<button type="button" class="btn btn-secondary">
+														<i class="fas fa-laptop-medical"></i>
+													</button>
+
+												</td>
+											</tr>
+
+										</tbody>
+									</table>
+								</fieldset>
+							</div>
+						</div>
+						<hr>
+						<div class="row">
+							<div class="col-md-7">
+								<table id="tableDetalle" class="table table-striped" style="width:100%">
+									<thead>
+										<tr>
+											<th>Código</th>
+											<th>Descripción</th>
+											<th>Precio</th>
+											<th>Cantidad</th>
+											<th>Importe</th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td>Tiger Nixon</td>
+											<td>System Architect</td>
+											<td>Edinburgh</td>
+											<td>61</td>
+											<td>2011-04-25</td>
+											<td>
+												<button type="button" class="btn btn-danger">
+													<i class="fas fa-trash-alt"></i>
+												</button>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="col-lg-5 my-3">
+								<div class="row">
+									<div class="col-md-3">
+										<label for="inputEmail3">Código</label>
+										<input type="text" class="form-control colorBloqueado" id="id-codigo" readonly>
+									</div>
+									<div class="col-md-6">
+										<label for="inputEmail3">Descripción</label>
+										<input type="text" class="form-control colorBloqueado" id="id-descripcion"
+											readonly>
+									</div>
+									<div class="col-md-3">
+										<label for="inputEmail3">Precio</label>
+										<input type="text" class="form-control colorBloqueado" id="id-precio" readonly>
+									</div>
+								</div>
+								<div class="row mt-3">
+									<div class="col-md-3">
+										<label for="inputEmail3">Cantidad</label>
+										<input type="text" class="form-control colorBloqueado" id="id-cantidad">
+									</div>
+									<div class="col-md-9 mt-2">
+										<button type="button" class="btn btn-warning" id="btn-adicionar">
+											<i class="fas fa-plus-square"></i> Adicionar
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="submit" class="btn btn-primary"><i class="fas fa-save"></i></button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+		crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+		integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+		crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://cdn.bootcdn.net/ajax/libs/bootstrap-validator/0.5.3/js/bootstrapValidator.js"></script>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"></script>
+	<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+	<script src="https://kit.fontawesome.com/08aaa156fb.js" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+	<script src="https://kit.fontawesome.com/08aaa156fb.js" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.3.0/alertify.js"></script>
+	<script>
+
+
+
+	
+		$("#tableProveedor").DataTable({
+			"searching": false,
+			"lengthChange": false
+		});
+		$("#tableProducto").DataTable({
+			"searching": false,
+			"lengthChange": false
+		});
+
+		$('#tableEntradas').DataTable();
+
+
+		$(document).on("click", "#btn-consulta-cliente", function () {
+			let ape;
+			nombre = $("#txtProveedor").val();
+			//reorganizar tabla
+			$("#tableProveedor").DataTable().destroy();
+			$("#tableProveedor tbody").empty();
+			$.get("/entrada/listaProveedorJSON?nombre=" + nombre, function (response) {
+				$.each(response, function (i, e) {
+					//$("#tableClientes").append("<tr><td>"+e.codigo+"</td><td>"+e.nombre+"</td><td>"+e.paterno+"</td><td>"+e.materno+"</td><td>"+boton+"</td></tr>");
+					$("#tableProveedor").append
+						(`<tr><td>${e.idproveedor}</td><td>${e.nombre}</td><td>${e.ruc}</td><td>
+							${e.direccion}</td><td>
+								<button type='button' class='btn btn-warning btn-datos-proveedor'>
+									<i class='fas fa-user-plus'></i></button></td></tr>`);
+				})
+				$("#tableProveedor").DataTable({
+					"searching": false,
+					"lengthChange": false
+				});
+			})
+		})
+		$(document).on("click", "#btn-consulta-medicamento", function () {
+			let nom;
+			nom = $("#txtProducto").val();
+			//reorganizar tabla
+			$("#tableProducto").DataTable().destroy();
+			$("#tableProducto tbody").empty();
+			$.get("/entrada/listaProductoJSON?nombre=" + nom, function (response) {
+				$.each(response, function (i, e) {
+					$("#tableProducto").append
+						(`<tr><td>${e.idproducto}</td><td>${e.descripcion}</td><td>${e.precio}</td><td>
+							${e.stock_actual}</td><td>
+								<button type='button' class='btn btn-warning btn-datos-producto'>
+									<i class='fas fa-user-plus'></i></button></td></tr>`);
+				})
+				$("#tableProducto").DataTable({
+					"searching": false,
+					"lengthChange": false
+				});
+			})
+		})
+
+		/*let btnProveedor = document.getElementsByClassName("btn-datos-proveedor");
+
+		for(let i=0; i<btnProveedor.length; i++){
+			btnProveedor.addEventListener('click', agregarProveedor());
+		}
+
+		function agregarProveedor(){
+			console.log("hola");
+		}*/
+
+
+		$(document).on("click", ".btn-datos-proveedor", function () {
+			let cod, nom, pat, mat;
+			cod = $(this).parents("tr").find("td")[0].innerHTML;
+			nom = $(this).parents("tr").find("td")[1].innerHTML;
+			$("#id-proveedor").val(cod + "-" + nom);
+		})
+		$(document).on("click", ".btn-datos-producto", function () {
+			let cod, nom, pre;
+			cod = $(this).parents("tr").find("td")[0].innerHTML;
+			nom = $(this).parents("tr").find("td")[1].innerHTML;
+			pre = $(this).parents("tr").find("td")[2].innerHTML;
+			$("#id-codigo").val(cod);
+			$("#id-descripcion").val(nom);
+			$("#id-precio").val(pre);
+
+		})
+		$(document).on("click", "#btn-adicionar", function () {
+			let cod, des, pre, can;
+			cod = $("#id-codigo").val();
+			des = $("#id-descripcion").val();
+			pre = $("#id-precio").val();
+			can = $("#id-cantidad").val();
+			//reorganizar tabla
+			$("#tableDetalle").DataTable().destroy();
+			$("#tableDetalle tbody").empty();
+			$.get("/entrada/adicionar?codigo=" + cod + "&descripcion=" + des + "&precio=" + pre + "&cantidad=" + can, function (response) {
+				$.each(response, function (i, e) {
+					$("#tableDetalle").append
+						(`<tr><td>${e.codigo}</td><td>${e.descripcion}</td><td>${e.precio}</td><td class='td-cantidad'>
+							${e.cantidad}</td><td class='importe'>${e.importe}</td><td>
+								<button type='button' class='btn btn-danger btn-eliminar'>
+									<i class='fas fa-trash-alt'></i></button></td></tr>`);
+				})
+				$("#tableDetalle").DataTable({
+					"searching": false,
+					"lengthChange": false
+				});
+			})
+
+			setTimeout(() => {
+				mostrarDatos()
+			}, "2000");
+
+		})
+
+		function mostrarDatos() {
+			let cantidades = document.getElementsByClassName("td-cantidad");
+			let totalCantidades = 0;
+			console.log(cantidades.length)
+			for (let i = 0; i < cantidades.length; i++) {
+				let cantidad = parseInt(cantidades[i].textContent); // Obtener el valor numérico del elemento
+				totalCantidades += cantidad;
+			}
+
+			let importes = document.getElementsByClassName("importe");
+			let totalImportes = 0;
+			for (let i = 0; i < importes.length; i++) {
+				totalImportes += parseInt(importes[i].textContent);
+				console.log(totalImportes)
+			}
+
+			$("#cantidad-total").val(totalCantidades);
+			$("#precio-total").val(totalImportes)
+		}
+
+		$(document).on("click", "#btnConsulta", function () {
+			let codPro;
+			codPro = $("#idProveedor").val();
+			//limpiar combo de tipo 
+			$.get("/medicamento/listarPorLaboratorio?codigo=" + codPro)
+		})
+
+
+
+	</script>
+
+</body>
+
+</html>

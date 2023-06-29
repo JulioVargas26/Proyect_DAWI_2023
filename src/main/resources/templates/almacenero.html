@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="ISO-8859-1">
+	<title>INTRANET ALMACEN</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+		integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+	<link rel="stylesheet" th:href="@{/resources/datepicker/bootstrap-datepicker.css}">
+	<link rel="stylesheet" th:href="@{/resources/alertifyjs/css/alertify.css}">
+	<link rel="stylesheet" th:href="@{/resources/alertifyjs/css/alertify.min.css}">
+
+	<style>
+		body{
+		background-image: url(https://dms.com.pe/wp-content/uploads/2022/06/sistemas-de-GestiOn-de-Almacenes.jpg);
+		background-repeat: no-repeat;
+		background-size: cover;
+	}
+		.modal-header,
+		h4,
+		.close {
+			background-color: #286090;
+			color: white !important;
+			text-align: center;
+			font-size: 20px;
+		}
+
+		.help-block {
+			color: red;
+			/*display: none;*/
+		}
+
+		.form-group.has-error .form-control-label {
+			color: red;
+		}
+
+		.form-group.has-error .form-control {
+			border: 1px solid red;
+			box-shadow: 0 0 0 0.2rem rgba(250, 16, 0, 0.18);
+		}
+
+		.alertify .ajs-dialog {
+			top: 50%;
+			transform: translateY(-50%);
+			margin: auto;
+		}
+
+		.ajs-header {
+			background-color: #286090 !important;
+			color: white !important;
+			/*text-align: center;*/
+			font-size: 18px;
+			font-weight: bold;
+		}
+
+		.ajs-ok {
+			color: #fff;
+			background-color: #007bff;
+			border-color: #007bff;
+		}
+
+		.ajs-cancel {
+			color: #fff;
+			background-color: #dc3545;
+			border-color: #dc3545;
+		}
+
+		.btn-primary {
+			background-color: #286090 !important;
+		}
+
+		.dataTables_length,
+		.dataTables_info {
+			display: none;
+		}
+
+		.modal-lg,
+		.modal-xl {
+			max-width: 900px;
+			max-height: 800px;
+		}
+
+		.form-control-feedback2 {
+			margin: 1px;
+			position: absolute;
+			padding: 10px;
+			pointer-events: none;
+			background-color: #e9ecef;
+			border-style: none;
+		}
+
+		.form-control-feedback3 {
+			margin: 1px;
+			position: absolute;
+			margin-left: 225px;
+			padding: 10px;
+			pointer-events: none;
+			background-color: #e9ecef;
+			border-style: none;
+		}
+
+		.form-control {
+			padding-left: 40px !important;
+		}
+
+		/*.toast-succes{
+		width: 120px;
+	}*/
+	</style>
+</head>
+
+<body>
+	<!-- consumir fragmento cabecera-->
+	<div th:insert="plantilla/UITemplate :: cabecera"></div>
+
+	<div class="container">
+
+		<h3 class="text-center mt-4"> LISTADO DE ALMACENEROS </h3>
+
+		<br />
+
+		<button type="button" class="btn btn-primary mt-5" data-toggle="modal" data-target="#modalProducto"
+			id="btn-nuevo">
+			<i class="far fa-file"></i> Agregar Almacenero
+		</button>
+
+		<table class="table table-striped table-bordered mt-5 table-hover" id="tableProductos">
+			<thead class="thead-dark">
+				<tr>
+					<th> CÓDIGO </th>
+					<th> NOMBRE </th>
+					<th> USUARIO </th>
+					<th> TELÉFONO </th>
+					<th> CORREO </th>
+					<th> ROL </th>
+					<th></th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="x:${Almacenero}" class="table-info">
+					<td th:text="${x.idalmacenero}"></td>
+					<td th:text="${x.nombre}"></td>
+					<td th:text="${x.login}"></td>
+					<td th:text="${x.telefono}"></td>
+					<td th:text="${x.correo}"></td>
+					<td th:text="${x.rol.descripcion}"></td>
+					<td><a class="btn btn-info btn-editar" data-toggle="modal" data-target="#modalProducto"><i
+								class="far fa-edit"></i></a></td>
+					<td><a class="btn btn-danger btn-eliminar"><i class="far fa-trash-alt"></i></a></td>
+				</tr>
+			</tbody>
+		</table>
+
+		</br>
+
+		<!-- begin #modal-dialog : MODAL ALMACENERO-->
+		<div class="modal fade" id="modalProducto" data-backdrop="static" data-keyboard="false" tabindex="-1"
+			aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered modal-login modal-lg">
+				<div class="modal-content">
+					<div class="modal-header bg-blue-darker">
+						<h4 class="modal-title text-white">MANTENIMIENTO ALMACENERO</h4>
+					</div>
+					<div class="modal-body">
+						<form method="POST" id="idRegistra" th:action="@{/almacenero/grabar}">
+							<input type="hidden" id="idCodigo" name="codigo" value="0">
+							<div class="container">
+								<div class="row">
+								
+									<div class="form-group has-feedback col-md-6">
+										<label for="exampleInputEmail1"><b>Nombre</b></label><br>
+										<i class="fas fa-prescription-bottle-alt form-control-feedback2"></i>
+										<input type="text" class="form-control"  id="idNombre" placeholder="Ingresar nombre" name="nombre">	
+										
+									</div>
+
+									<div class="form-group has-feedback col-md-6">
+										<label for="exampleInputEmail1"><b>Usuario </b></label><br>
+										<i class="fas fa-file-signature form-control-feedback2"></i>
+										<input type="text" class="form-control" id="idLogin"
+											placeholder="Ingresar Usuario" name="login">
+									</div>
+
+									<div class="form-group has-feedback col-md-6">
+										<label for="exampleInputEmail1"><b>Contraseña </b></label><br>
+										<i class="fas fa-file-signature form-control-feedback2"></i>
+										<input type="text" class="form-control" id="idClave"
+											placeholder="Ingresar Contraseña" name="clave">
+									</div>
+									
+									<div class="form-group has-feedback col-md-6">
+										<label for="exampleInputEmail1"><b>Teléfono </b></label><br>
+										<i class="fas fa-file-signature form-control-feedback2"></i>
+										<input type="text" class="form-control" id="idTelefono"
+											placeholder="Ingresar Teléfono" name="telefono">
+									</div>
+									
+									<div class="form-group has-feedback col-md-6">
+										<label for="exampleInputEmail1"><b>Correo </b></label><br>
+										<i class="fas fa-file-signature form-control-feedback2"></i>
+										<input type="text" class="form-control" id="idCorreo"
+											placeholder="Ingresar Correo" name="correo">
+									</div>
+
+									<div class="form-group has-feedback col-md-6">
+										<label for="exampleInputEmail1"><b>Rol</b></label><br>
+										<i class="fas fa-prescription-bottle-alt form-control-feedback2"></i>
+										<select class="form-control" name="rol" id="idCategoria">
+											<option value=" ">[Seleccione Rol]</option>
+											<option th:each="x:${Rol}" th:utext="${x.descripcion}"
+												th:value="${x.idrol}" />
+										</select>
+									</div>
+
+
+								</div>
+								<div class="col-md-12 text-center mt-4">
+									<button type="submit" id="Guardar" class="btn btn-primary"><i
+											class="fas fa-save"></i>
+										Registrar</button>
+									<button type="button" id="btn-cerrar" class="btn btn-danger" data-dismiss="modal"><i
+											class="fas fa-undo-alt"></i> Cancelar</button>
+
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- FIN Modal ALMACENERO-->
+		<form action="@{/almacenero/eliminar}" method="post" id="form-eliminar">
+			<input type="hidden" name="codigo" id="codigo-eliminar"/>
+		</form>
+		
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+		integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+		crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns"
+		crossorigin="anonymous"></script>
+	<script src="https://cdn.bootcdn.net/ajax/libs/bootstrap-validator/0.5.3/js/bootstrapValidator.js"></script>
+	<script th:src="@{/resources/datepicker/bootstrap-datepicker.js}"></script>
+	<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+	<script src="https://kit.fontawesome.com/08aaa156fb.js" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+	<script src="https://kit.fontawesome.com/08aaa156fb.js" crossorigin="anonymous"></script>
+	<script th:src="@{/resources/alertifyjs/alertify.js}"></script>
+	<script th:src="@{/resources/alertifyjs/alertify.min.js}"></script>
+
+	<script th:inline="javascript" th:if="${MENSAJE!=null}">
+		let msg;
+		msg =/*[[${MENSAJE}]]*/
+			toastr.success(msg, toastr.options = {
+				"timeOut": "2000",
+				"positionClass ": " toast-top-right ",
+			});
+	</script>
+
+	<script>
+		$('#tableProductos').DataTable();
+		$(function () {
+			$('#usr1').datepicker({
+				'format': 'yyyy-mm-dd',
+				'autoclose': true
+			});
+		});
+		$('#usr1').on('changeDate show', function (e) {
+			$('#idRegistra').bootstrapValidator('revalidateField', $('#usr1'));
+		});
+
+	</script>
+
+	<script>
+
+		//global
+		let codMarca = -1;
+
+		//asignar evento clic al botón con clase btn-editar
+		$(document).on('click', '.btn-editar', function () {
+			let cod;
+			//obtener código del medicamento según el botón editar que se pulso
+			cod = $(this).parents("tr").find("td")[0].innerHTML;
+			//función get
+			$.get("/producto/buscar?Codigo=" + cod, function (response) {
+				console.log(response);
+				$("#idCodigo").val(response.idproducto);
+				$("#idDescripcion").val(response.descripcion);
+				$("#idStockmi").val(response.stock_minimo);
+				$("#idStockac").val(response.stock_actual);
+				$("#idCategoria").val(response.categoria.idcategoria);
+				$("#usr1").val(response.fecha);
+				$("#idPrecio").val(response.precio)
+				$("#idProveedor").val(response.marca.proveedor.idproveedor);
+
+				codMarca = response.marca.idmarca;
+				//invocar al evento change del combo
+				$("#idProveedor").trigger("change");
+
+			})
+		})
+
+		//asignar evento clic al botón con clase btn-eliminar
+	$(document).on('click', '.btn-eliminar', function() {
+		let cod;
+		//obtener código del medicamento según el botón editar que se pulso
+		cod=$(this).parents("tr").find("td")[0].innerHTML;
+		$("#codigo-eliminar").val(cod);
+	  alertify.confirm("SISTEMA","¿Estás seguro que deseas eliminar?",
+	  function(){
+			window.location="@{/almacenero/eliminar?Codigo=}"+cod;
+			
+	  },
+	  function(){ 
+		alertify.error('Cancelado')
+	  }).
+	  set('labels', {ok:'Si', cancel:'No'});
+	})
+
+		//asignar evento clic al botón con ID "btn-cerrar"
+		$(document).on("click", "#btn-cerrar", function () {
+			//resetear formulario
+			$("#idRegistra").trigger("reset");
+			//asignar el valor de "0" a la caja con ID "idCodigo"
+			$("#idCodigo").val(0);
+			//resetear validación
+			$("#idRegistra").data("bootstrapValidator").resetForm(true);
+		})
+
+		//asignar evento change al select con ID "idProveedor"
+		$(document).on("change", "#idProveedor", function () {
+			//variable
+			let cod;
+			cod = $(this).val();
+			//limpiar combo de tipo
+			$("#idMarca").empty().append("<option>[Seleccione Marca]</option>")
+			$.get("/producto/listarPorProveedor?Codigo=" + cod, function (response) {
+				//bucle
+				$.each(response, function (index, item) {
+					$("#idMarca").append("<option value='" + item.idmarca + "'>" + item.descripcion + "</option>");
+				})
+				$("#idMarca").val(codMarca);
+
+			})
+		})
+
+	</script>
+
+	<script type="text/javascript">
+		$(document).ready(function () {
+
+			$('#idRegistra').bootstrapValidator({
+				feedbackIcons: {
+					valid: 'glyphicon glyphicon-ok',
+					invalid: 'glyphicon glyphicon-remove',
+					validating: 'glyphicon glyphicon-refresh'
+				},
+				fields: {
+					Descripcion: {
+						selector: '#idDescripcion',
+						validators: {
+							notEmpty: {
+								message: 'Ingrese descripción'
+							}
+						}
+					},
+					Stock_minimo: {
+						selector: '#idStockmi',
+						validators: {
+							notEmpty: {
+								message: 'Ingrese Cantidad'
+							},
+							regexp: {
+								regexp: /^[0-9]{1,5}$/,
+								message: 'Campo stock hasta cinco cifras'
+							},
+						}
+					},
+					Stock_actual: {
+						selector: '#idStockac',
+						validators: {
+							notEmpty: {
+								message: 'Ingrese Cantidad'
+							},
+							regexp: {
+								regexp: /^[0-9]{1,5}$/,
+								message: 'Campo stock hasta cinco cifras'
+							},
+						}
+					},
+					Tipo: {
+						selector: '#idTipo',
+						validators: {
+							notEmpty: {
+								message: 'Seleccione Tipo'
+							},
+						}
+					},
+					Marca: {
+						selector: '#idMarca',
+						validators: {
+							notEmpty: {
+								message: 'Seleccione Marca'
+							},
+						}
+					},
+					Fecha: {
+						selector: '#usr1',
+						validators: {
+							notEmpty: {
+								message: 'Seleccione fecha '
+							},
+							date: {
+								format: 'YYYY-MM-DD',
+								message: 'El Formato es AÑO-MES-DIA'
+							},
+						}
+					},
+					Proveedor: {
+						selector: '#idProveedor',
+						validators: {
+							notEmpty: {
+								message: 'Seleccione Proveedor'
+							},
+						}
+					}
+				}
+			});
+		});    
+	</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+
+</html>
